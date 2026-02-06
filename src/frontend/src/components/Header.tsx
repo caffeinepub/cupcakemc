@@ -1,0 +1,297 @@
+import { useState, useEffect, memo } from 'react';
+import { Menu, X, ShoppingCart, LogIn, LogOut, User, AlertCircle, History } from 'lucide-react';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGetCart } from '../hooks/useQueries';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
+
+// Memoized navigation link component
+const NavLink = memo(({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
+  <Link
+    to={to}
+    onClick={onClick}
+    className="text-sm font-medium text-gray-300 hover:text-pink-400 transition-colors"
+  >
+    {children}
+  </Link>
+));
+
+NavLink.displayName = 'NavLink';
+
+export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { login, clear, loginStatus, identity, loginError, isInitializing, isLoginSuccess } = useInternetIdentity();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+  const { data: cart = [] } = useGetCart();
+
+  const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
+  const isLoggingIn = loginStatus === 'logging-in';
+  const cartItemCount = cart.reduce((sum, item) => sum + Number(item.quantity), 0);
+
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isLoginSuccess && isAuthenticated) {
+      const timer = setTimeout(() => {
+        queryClient.invalidateQueries();
+        
+        if (redirectPath) {
+          const path = redirectPath;
+          setRedirectPath(null);
+          navigate({ to: path as any });
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoginSuccess, isAuthenticated, redirectPath, navigate, queryClient]);
+
+  useEffect(() => {
+    if (loginStatus === 'loginError' && loginError) {
+      toast.error('Authentication Failed', {
+        description: loginError.message || 'Unable to complete login. Please try again.',
+        action: {
+          label: 'Retry',
+          onClick: () => handleAuth(),
+        },
+      });
+    }
+  }, [loginStatus, loginError]);
+
+  const handleAuth = async () => {
+    if (isAuthenticated) {
+      await clear();
+      queryClient.clear();
+      toast.success('Logged out successfully');
+    } else {
+      setRedirectPath(routerState.location.pathname);
+      login();
+    }
+  };
+
+  const principalText = isAuthenticated && identity 
+    ? identity.getPrincipal().toString().slice(0, 8) + '...' 
+    : '';
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/80">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <img src="/assets/generated/cupcake-logo-transparent.dim_200x200.png" alt="CupCakeMC" className="h-10 w-10" loading="eager" />
+              <span className="text-xl font-bold text-pink-400">
+                CupCakeMC
+              </span>
+            </Link>
+
+            <nav className="hidden md:flex items-center gap-6">
+              <NavLink to="/">Home</NavLink>
+              <NavLink to="/shop">Shop</NavLink>
+              <NavLink to="/vote">Vote</NavLink>
+              <NavLink to="/discord">Discord</NavLink>
+              {isAuthenticated && (
+                <Link
+                  to="/history"
+                  className="text-sm font-medium text-gray-300 hover:text-pink-400 transition-colors flex items-center gap-1"
+                >
+                  <History className="h-4 w-4" />
+                  History
+                </Link>
+              )}
+            </nav>
+
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative text-gray-300 hover:text-pink-400"
+                onClick={() => navigate({ to: '/shop' })}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-pink-500 text-xs font-bold text-white flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Button>
+              
+              {isInitializing ? (
+                <Button variant="outline" disabled className="hidden md:inline-flex gap-2 border-pink-500/50">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <span>Loading...</span>
+                </Button>
+              ) : isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="hidden md:inline-flex gap-2 border-pink-500/50 text-pink-400 hover:bg-pink-500/10">
+                      <User className="h-4 w-4" />
+                      <span className="font-medium">{principalText}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-gray-900 border-pink-500/30">
+                    <DropdownMenuLabel className="text-pink-400">My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-pink-500/20" />
+                    <div className="px-2 py-1.5 text-sm text-gray-400">
+                      <div className="font-medium text-gray-300 text-xs break-all">{identity?.getPrincipal().toString()}</div>
+                    </div>
+                    <DropdownMenuSeparator className="bg-pink-500/20" />
+                    <DropdownMenuItem onClick={handleAuth} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  onClick={handleAuth}
+                  disabled={isLoggingIn || isInitializing}
+                  className="hidden md:inline-flex gap-2 bg-pink-500 hover:bg-pink-600 text-white"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      <span>Logging in...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4" />
+                      <span>Login</span>
+                    </>
+                  )}
+                </Button>
+              )}
+              
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-300"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-pink-500/20">
+              <nav className="flex flex-col gap-3">
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/shop"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
+                >
+                  Shop
+                </Link>
+                <Link
+                  to="/vote"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
+                >
+                  Vote
+                </Link>
+                <Link
+                  to="/discord"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
+                >
+                  Discord
+                </Link>
+                {isAuthenticated && (
+                  <Link
+                    to="/history"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors flex items-center gap-2"
+                  >
+                    <History className="h-4 w-4" />
+                    Purchase History
+                  </Link>
+                )}
+                
+                {isInitializing ? (
+                  <Button variant="outline" disabled className="mx-4 mt-2 gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Loading...</span>
+                  </Button>
+                ) : isAuthenticated ? (
+                  <div className="mx-4 mt-2 space-y-2">
+                    <div className="px-4 py-2 text-sm border border-pink-500/30 rounded-md bg-pink-500/5">
+                      <div className="flex items-center gap-2 text-pink-400 font-medium">
+                        <User className="h-4 w-4" />
+                        {principalText}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1 break-all">{identity?.getPrincipal().toString()}</div>
+                    </div>
+                    <Button
+                      onClick={handleAuth}
+                      variant="destructive"
+                      className="w-full gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={handleAuth}
+                    disabled={isLoggingIn || isInitializing}
+                    className="mx-4 mt-2 gap-2 bg-pink-500 hover:bg-pink-600"
+                  >
+                    {isLoggingIn ? (
+                      <>
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <span>Logging in...</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="h-4 w-4" />
+                        <span>Login</span>
+                      </>
+                    )}
+                  </Button>
+                )}
+              </nav>
+            </div>
+          )}
+        </div>
+
+        {loginStatus === 'loginError' && loginError && (
+          <div className="border-t border-red-500/30 bg-red-500/10 px-4 py-2">
+            <Alert className="border-red-500/30 bg-transparent">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              <AlertDescription className="text-red-300 text-sm">
+                {loginError.message}
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="ml-2 h-auto p-0 text-red-400 hover:text-red-300"
+                  onClick={handleAuth}
+                >
+                  Try again
+                </Button>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+      </header>
+    </>
+  );
+}

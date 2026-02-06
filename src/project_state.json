@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Project focused on improving website performance; optimize speed issues affecting both deployed preview and editor.",
+  "architectural_notes": [
+    "Performance work should address both deployed preview and editor environments (not just one)."
+  ],
+  "known_issues": [
+    "Website performance is reported as slow across the board (loading and general responsiveness) in both preview and editor."
+  ],
+  "isFixRequest": true,
+  "existing_features": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Optimize overall website performance (loading/navigation/interactions) in both deployed preview and editor",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Untitled request",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
