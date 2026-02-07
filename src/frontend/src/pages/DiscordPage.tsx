@@ -10,14 +10,14 @@ export default function DiscordPage() {
   return (
     <div className="min-h-screen py-16 px-4">
       <div className="container mx-auto max-w-2xl">
-        <Card className="bg-gray-900/50 border-pink-500/30">
+        <Card className="card-glow">
           <CardContent className="p-8">
             <div className="text-center space-y-6">
-              <div className="inline-block p-4 bg-pink-500/10 rounded-full">
+              <div className="inline-block p-4 bg-pink-500/10 rounded-lg">
                 <SiDiscord className="h-20 w-20 text-pink-400" />
               </div>
               
-              <h1 className="text-4xl font-bold text-pink-400">Join Our Discord</h1>
+              <h1 className="text-3xl md:text-4xl heading-pixel">Join Our Discord</h1>
               
               <p className="text-gray-300 text-lg">
                 Connect with our community, get support, and stay updated with server news!
@@ -30,7 +30,7 @@ export default function DiscordPage() {
                   </div>
                 ) : (
                   <a
-                    href={config?.discordInviteLink || 'https://dsc.gg/cupcakemc'}
+                    href={config?.discordInviteLink || 'https://discord.gg/YRRE9ugFAw'}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

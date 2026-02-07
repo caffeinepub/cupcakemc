@@ -1,6 +1,206 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Untitled request",
-  "requirements": []
+  "title": "CupCakeMC screenshot-matching redesign (navbar + homepage sections + theme + branding assets)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Redesign the global navigation header to match the screenshots (left brand, centered links, right cart + Login) with dark translucent bar and thin pink accent.",
+      "acceptanceCriteria": [
+        "On desktop widths, nav links appear centered in the header with consistent spacing, matching the screenshot layout.",
+        "Header background is dark/black with subtle translucency and a thin pink divider/border line as in the screenshots.",
+        "Cart icon and Login button are right-aligned and visually consistent with the screenshot styling (rounded button, pink accent).",
+        "Mobile header retains a functional mobile menu and does not break login/cart functionality."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Update header layout to a 3-zone grid/flex (left brand, centered nav, right actions), apply translucent dark styling with thin pink accent line, and align hover/focus states to the new theme. Keep existing auth/cart/mobile menu behavior intact. Use shadcn-ui Button/DropdownMenu capabilities for consistent interactive styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add/adjust shared navbar utility classes (e.g., translucent background, pink accent divider, hover/focus rings) used by Header to match screenshots. Use existing global styling entry point only."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Recreate the Home page sections in the screenshot order with matching card layout, hero styling, and responsive spacing.",
+      "acceptanceCriteria": [
+        "Homepage section order matches the screenshots: Server Status → Vote → Discord → Why Choose CupCakeMC.",
+        "Each section is presented as a centered dark card with subtle border/glow styling consistent with the screenshots.",
+        "“Why Choose CupCakeMC?” shows three feature cards with icon, title, and description in a 3-column layout on desktop and a stacked layout on mobile.",
+        "All existing routes (Shop/Vote/Discord) remain navigable and functional from the Home page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Redesign the Home page hero to use the generated banner background and match screenshot typography/spacing; implement centered dark card sections for Server Status, Vote, Discord, and Why Choose, preserving the required section order and responsive behavior. Use shadcn-ui Card/Button capabilities for consistent card/button visuals; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add shared ‘card glow/border’ and heading styles used across Home sections (reusable utility/classes) to match screenshot treatment, ensuring responsive spacing and consistent typography."
+        },
+        {
+          "path": "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png",
+          "operation": "create",
+          "description": "Add the required generated hero/banner background image asset for the Home hero and reference it directly from the frontend."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Make the Home page Vote section render a list of voting-site buttons (config-driven with fallbacks) matching the screenshot rows.",
+      "acceptanceCriteria": [
+        "If vote URLs exist in website config, the Home page Vote section renders one button per URL; otherwise it shows the fallback sites.",
+        "Each voting site row opens in a new tab and has an external-link icon aligned to the right.",
+        "The Vote section matches the screenshot’s card + button-row visual style (dark rows, subtle borders, pink hover accents)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Replace the Home Vote CTA with an in-card list of vote-site rows using website config vote URLs when present; otherwise render fallback sites (e.g., Minecraft-mp.com, TopG.org). Ensure each row opens in a new tab and includes a right-aligned external-link icon, styled as dark bordered rows with pink hover accents. Use shadcn-ui Button/Card capabilities for row/button presentation; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Make the Home page Discord section match the screenshots (center icon, pink headline, description, prominent invite button with configured fallback).",
+      "acceptanceCriteria": [
+        "Discord section uses a centered Discord icon and a large pink title consistent with the screenshots.",
+        "Clicking the Discord button opens the configured invite URL in a new tab (with a fallback URL if missing).",
+        "The section is displayed as a centered dark card with border/glow consistent with the screenshots."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Update the Home Discord card to match screenshot composition: centered Discord icon above heading, pink headline styling, concise description, and prominent button that opens the configured invite link in a new tab with a sensible fallback. Use shadcn-ui Button/Card capabilities for consistent visuals; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/generated/discord-icon.dim_32x32.png",
+          "operation": "create",
+          "description": "Add (or ensure presence of) a static Discord icon asset under generated assets for consistent icon rendering in the Home Discord section (if used) and reference it directly from the frontend."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Apply a coherent CupCakeMC theme across Home/Vote/Discord/Shop (dark background, pink accents, glow borders, pixel/arcade headings).",
+      "acceptanceCriteria": [
+        "Key section headings on Home/Vote/Discord pages use a consistent pixel/arcade-like style and pink accent color.",
+        "Cards and buttons across Home/Vote/Discord/Shop pages share the same dark + pink accent theme (borders/hover/focus states).",
+        "No user-facing text is introduced in a language other than English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add the required font link(s) for a pixel/arcade-like heading style (and favicon links if appropriate) while keeping document language English and preserving the existing root container."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend Tailwind theme to include a pixel/arcade heading font family token and any needed theme utilities (e.g., glow shadows) used across pages; keep changes within existing Tailwind config."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Define global theme helpers for the CupCakeMC look (dark background consistency, pink accent utilities, card glow/border treatments, heading font class) used across Home/Vote/Discord/Shop; ensure hover/focus states are consistent and accessible."
+        },
+        {
+          "path": "frontend/src/pages/VotePage.tsx",
+          "operation": "modify",
+          "description": "Adjust Vote page heading typography (pixel/arcade style) and card/button row styling to match the shared dark+pinky theme and screenshot-like visuals. Use shadcn-ui Card/Button capabilities for consistent theming; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/DiscordPage.tsx",
+          "operation": "modify",
+          "description": "Adjust Discord page heading typography (pixel/arcade style) and card/button styling to match the shared theme and screenshot-like visuals. Use shadcn-ui Card/Button capabilities for consistent theming; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/ShopPage.tsx",
+          "operation": "modify",
+          "description": "Align Shop page headings, cards, and buttons with the shared CupCakeMC theme (dark cards, pink accents, consistent hover/focus/glow) without altering business logic. Use shadcn-ui Card/Button/Badge capabilities for consistent UI patterns; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add and use the user-provided CupCake SMP logo as primary brand asset in header and as favicon/app icon.",
+      "acceptanceCriteria": [
+        "Header displays the CupCake SMP logo next to the brand name, with clean edges on the dark background (transparent logo variant).",
+        "A square favicon/app icon derived from the provided logo is included and referenced by the app.",
+        "Branding remains consistent across main pages (Home/Shop/Vote/Discord)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
+          "operation": "create",
+          "description": "Add the required generated transparent CupCake SMP logo asset used for primary branding in the header and elsewhere as needed."
+        },
+        {
+          "path": "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
+          "operation": "create",
+          "description": "Add the required generated square favicon/app icon derived from the logo for browser tab/app icon usage."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Swap header branding image to use frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png and ensure sizing/spacing matches the screenshots on dark background. Use shadcn-ui Button/DropdownMenu where applicable for consistent header interactions; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Reference frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png as the favicon (and add any applicable icon link tags) to ensure the app icon is applied in production builds."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Ensure required generated images are stored under frontend/public/assets/generated and referenced as static frontend assets only.",
+      "acceptanceCriteria": [
+        "All newly generated image files exist under frontend/public/assets/generated.",
+        "Frontend references use static paths (e.g., /assets/generated/...) and work in production builds.",
+        "No backend endpoints are added for image delivery."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
+          "operation": "create",
+          "description": "Ensure the required generated logo asset exists at this exact path for static serving (frontend-only)."
+        },
+        {
+          "path": "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
+          "operation": "create",
+          "description": "Ensure the required generated favicon/app icon exists at this exact path for static serving (frontend-only)."
+        },
+        {
+          "path": "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png",
+          "operation": "create",
+          "description": "Ensure the required generated hero background exists at this exact path for static serving (frontend-only)."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Ensure header logo references use static generated asset paths under /assets/generated/ (no backend image delivery). Use shadcn-ui components as currently composed; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Ensure Home hero background references use the static generated asset path under /assets/generated/ (no backend image delivery). Use shadcn-ui components as currently composed; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Ensure favicon link references point to /assets/generated/cupcakesmp-favicon.dim_64x64.png (static asset) so it works in production builds."
+        }
+      ]
+    }
+  ]
 }

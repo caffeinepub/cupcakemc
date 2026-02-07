@@ -1,15 +1,28 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Custom hook that implements natural scrolling behavior site-wide.
  * When user scrolls up (wheel up or swipe up), page scrolls up.
  * When user scrolls down (wheel down or swipe down), page scrolls down.
- * This is the standard, expected scrolling behavior.
+ * On touch devices, scrolling is accelerated for faster navigation.
  */
-export function useNaturalScroll() {
+export function useNaturalScroll(config?: { touchMultiplier?: number }) {
+  const touchMultiplier = config?.touchMultiplier ?? 2.5;
+  const rafIdRef = useRef<number | null>(null);
+  const touchStateRef = useRef({
+    startY: 0,
+    isScrolling: false,
+    isTouchDevice: false,
+  });
+
   useEffect(() => {
-    let touchStartY = 0;
-    let isScrolling = false;
+    // Detect if device supports touch/coarse pointer
+    const isTouchDevice = 
+      ('ontouchstart' in window) || 
+      (navigator.maxTouchPoints > 0) ||
+      (window.matchMedia('(pointer: coarse)').matches);
+    
+    touchStateRef.current.isTouchDevice = isTouchDevice;
 
     // Handle mouse wheel events
     const handleWheel = (e: WheelEvent) => {
@@ -21,13 +34,13 @@ export function useNaturalScroll() {
 
       e.preventDefault();
       
-      // Use natural scroll direction
+      // Use natural scroll direction (no multiplier for wheel)
       const delta = e.deltaY;
       
       // Apply smooth scrolling with natural direction
       window.scrollBy({
         top: delta,
-        behavior: 'auto', // Use 'auto' for immediate response, feels more natural
+        behavior: 'auto',
       });
     };
 
@@ -38,8 +51,8 @@ export function useNaturalScroll() {
         return;
       }
       
-      touchStartY = e.touches[0].clientY;
-      isScrolling = false;
+      touchStateRef.current.startY = e.touches[0].clientY;
+      touchStateRef.current.isScrolling = false;
     };
 
     // Handle touch move for mobile devices
@@ -49,24 +62,48 @@ export function useNaturalScroll() {
         return;
       }
 
-      if (!isScrolling) {
-        isScrolling = true;
+      // Only apply custom scrolling on touch devices
+      if (!touchStateRef.current.isTouchDevice) {
+        return;
+      }
+
+      e.preventDefault();
+
+      if (!touchStateRef.current.isScrolling) {
+        touchStateRef.current.isScrolling = true;
       }
 
       const touchY = e.touches[0].clientY;
-      const deltaY = touchStartY - touchY;
+      const deltaY = touchStateRef.current.startY - touchY;
       
-      // Use natural scroll direction for touch
-      const delta = deltaY;
+      // Apply touch multiplier for faster scrolling on touch devices
+      const delta = deltaY * touchMultiplier;
       
-      // Apply the natural scroll
-      window.scrollBy({
-        top: delta,
-        behavior: 'auto',
+      // Cancel any pending animation frame
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+
+      // Use requestAnimationFrame for smooth, batched scrolling
+      rafIdRef.current = requestAnimationFrame(() => {
+        window.scrollBy({
+          top: delta,
+          behavior: 'auto',
+        });
+        rafIdRef.current = null;
       });
       
       // Update touch start position for continuous scrolling
-      touchStartY = touchY;
+      touchStateRef.current.startY = touchY;
+    };
+
+    // Handle touch end/cancel to clean up state
+    const handleTouchEnd = () => {
+      touchStateRef.current.isScrolling = false;
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
 
     // Helper function to determine if we should skip custom scrolling for certain elements
@@ -103,16 +140,28 @@ export function useNaturalScroll() {
       return false;
     };
 
-    // Add event listeners with passive: false to allow preventDefault
+    // Add event listeners
+    // Wheel: passive: false to allow preventDefault
     window.addEventListener('wheel', handleWheel, { passive: false });
+    
+    // Touch events: only preventDefault on touchmove when needed
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
     // Cleanup
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+      
+      // Cancel any pending animation frame
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
-  }, []);
+  }, [touchMultiplier]);
 }

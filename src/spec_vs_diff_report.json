@@ -1,77 +1,71 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-06T09:55:27.735Z",
-  "summary": "The BuildRequest contains no stated requirements or acceptance criteria. The diff introduces extensive backend and frontend functionality (shop/UPI/payments, profiles/auth, routing/UI changes, and performance/caching optimizations) that is not requested by the BuildRequest.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-07T19:54:59.957Z",
+  "summary": "Most requested UI/theme changes appear implemented (navbar layout/style, dark+pink theme utilities, redesigned Home/Vote/Discord/Shop pages, favicon/logo references). However, the diff does not show the required generated image assets being added under frontend/public/assets/generated, and several unrelated new features/components were introduced (profile setup, admin management, UPI QR modal, theme toggle, query caching changes).",
+  "missing_requirements": [
     {
-      "description": "Backend additions/changes introducing UPI/website configuration state, shop/cart/purchase domain types, and user profile/profile access functions with authorization checks.",
-      "reason": "No requirements were provided in the BuildRequest, so adding new backend business logic and APIs is unrequested scope.",
+      "id": "REQ-7",
+      "requirement": "Store required generated images in frontend/public/assets/generated and reference them directly from the frontend (logo, favicon, hero background).",
+      "reason": "The diff shows the app referencing /assets/generated/... images, but the diff reports no added files, so there is no evidence that the required generated image files were actually added under frontend/public/assets/generated.",
       "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Frontend routing refactor with lazy-loaded pages, Suspense loading fallbacks, dynamic document title updates, and React Query client configuration changes (aggressive caching, disabled refetch behaviors).",
-      "reason": "No requirements were provided in the BuildRequest, so these application-level behavior changes are not requested.",
-      "evidence": [
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "description": "Header/navigation behavior changes including authentication UI logic, redirect-after-login behavior, toast notifications on auth errors, and cart item count integration.",
-      "reason": "No requirements were provided in the BuildRequest, so adding/altering auth UX and cart-aware navigation is unrequested.",
-      "evidence": [
-        "frontend/src/components/Header.tsx"
-      ]
-    },
-    {
-      "description": "New/expanded React Query hooks for admin checks, shop CRUD, cart operations, UPI config retrieval/update, website config retrieval, purchase flows, etc.",
-      "reason": "No requirements were provided in the BuildRequest, so adding these data-fetching/mutation hooks is unrequested.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    },
-    {
-      "description": "Global CSS/theme/performance styling changes (color variables, base styles, content-visibility for images, reduced motion handling, GPU acceleration utilities).",
-      "reason": "No requirements were provided in the BuildRequest, so broad styling/performance CSS changes are unrequested.",
-      "evidence": [
-        "frontend/src/index.css"
-      ]
-    },
-    {
-      "description": "Home page UI updates including dynamic website-config-driven server status/tagline and memoization/lazy image loading behavior.",
-      "reason": "No requirements were provided in the BuildRequest, so homepage feature/UX changes are unrequested.",
-      "evidence": [
-        "frontend/src/pages/HomePage.tsx"
-      ]
-    },
-    {
-      "description": "Shop page UI updates including category filtering, memoization for item filtering/cart total, checkout modal integration, UPI config usage, and add-to-cart/purchase flows.",
-      "reason": "No requirements were provided in the BuildRequest, so shop and checkout functionality changes are unrequested.",
-      "evidence": [
-        "frontend/src/pages/ShopPage.tsx"
-      ]
-    },
-    {
-      "description": "Introduction/mention of multiple additional frontend components/pages and configuration changes (e.g., ProfileSetupModal, UPIQRCodeModal, AdminDashboardPage, tailwind config adjustments, layout/natural scroll changes).",
-      "reason": "No requirements were provided in the BuildRequest, so these added/changed UI features are unrequested scope. Evidence is limited to the diff summary file list/descriptions.",
-      "evidence": [
-        "frontend-file-summaries.txt"
+        "File diff summary: \"Added: 0\"",
+        "frontend/src/components/Header.tsx (references /assets/generated/cupcakesmp-logo-transparent.dim_200x200.png)",
+        "frontend/src/pages/HomePage.tsx (references /assets/generated/hero-bg-blur.dim_1920x600.png)",
+        "frontend/index.html (references /assets/generated/cupcakesmp-favicon.dim_64x64.png)"
       ]
     }
   ],
-  "confidence": 0.78,
+  "hallucinated_features": [
+    {
+      "description": "Profile setup/user profile management (new query hooks and non-dismissible ProfileSetupModal shown in Layout).",
+      "reason": "BuildRequest focuses on redesigning navbar and homepage sections + applying theme; it does not request collecting/storing user profile name/Minecraft username or gating UX with a mandatory modal.",
+      "evidence": [
+        "frontend-file-summaries.txt (useQueries.ts: added useGetCallerUserProfile/useSaveCallerUserProfile)",
+        "frontend-file-summaries.txt (ProfileSetupModal.tsx)",
+        "frontend-file-summaries.txt (Layout.tsx includes ProfileSetupModal)"
+      ]
+    },
+    {
+      "description": "Theme toggle feature using next-themes.",
+      "reason": "Not requested; requirements specify a coherent CupCakeMC theme but do not ask for a user-controlled theme switcher.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/ThemeToggle.tsx)"
+      ]
+    },
+    {
+      "description": "UPI QR code modal that generates QR codes using an external QR Server API.",
+      "reason": "Not requested; also goes beyond \"do not change shop/checkout business logic unless required purely for styling/layout consistency\" by introducing a new payment UX path and calling an external API.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/UPIQRCodeModal.tsx)"
+      ]
+    },
+    {
+      "description": "Admin dashboard enhancements including head-admin-only admin management (add/remove admin).",
+      "reason": "Not requested by the redesign requirements (REQ-1..REQ-7) which are focused on homepage/navbar/theme/assets.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/AdminDashboardPage.tsx)"
+      ]
+    },
+    {
+      "description": "App-level React Query caching/preloading/code-splitting optimizations.",
+      "reason": "Not requested; unrelated to the UI redesign requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/App.tsx: aggressive caching, route preloading, Suspense boundaries)"
+      ]
+    }
+  ],
+  "confidence": 0.74,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
+    "frontend/index.html",
     "frontend/src/components/Header.tsx",
-    "frontend/src/hooks/useQueries.ts",
     "frontend/src/index.css",
+    "frontend/src/pages/DiscordPage.tsx",
     "frontend/src/pages/HomePage.tsx",
     "frontend/src/pages/ShopPage.tsx",
+    "frontend/src/pages/VotePage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

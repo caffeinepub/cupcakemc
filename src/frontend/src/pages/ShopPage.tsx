@@ -12,7 +12,6 @@ import CheckoutModal from '../components/CheckoutModal';
 
 type Category = 'All Items' | 'Ranks' | 'Crate Keys' | 'Perks';
 
-// Memoized shop item card
 const ShopItemCard = memo(({ 
   item, 
   onAddToCart, 
@@ -22,7 +21,7 @@ const ShopItemCard = memo(({
   onAddToCart: (item: ShopItem) => void; 
   isAdding: boolean;
 }) => (
-  <Card className="bg-gray-900/50 border-pink-500/30 hover:border-pink-500/50 transition-colors">
+  <Card className="card-glow">
     <CardHeader className="pb-3">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
@@ -78,7 +77,6 @@ export default function ShopPage() {
 
   const categories: Category[] = ['All Items', 'Ranks', 'Crate Keys', 'Perks'];
 
-  // Memoize filtered items
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
       if (selectedCategory === 'All Items') return true;
@@ -86,7 +84,6 @@ export default function ShopPage() {
     });
   }, [allItems, selectedCategory]);
 
-  // Memoize cart total
   const cartTotal = useMemo(() => {
     return cart.reduce((sum, item) => {
       return sum + Number(item.shopItem.price) * Number(item.quantity);
@@ -145,7 +142,7 @@ export default function ShopPage() {
     <div className="min-h-screen py-6 px-4">
       <div className="container mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-pink-400 mb-2">Shop</h1>
+          <h1 className="text-3xl md:text-4xl heading-pixel mb-4">Shop</h1>
           <p className="text-gray-300 text-sm">
             Browse our collection of ranks, crate keys, and perks to enhance your gameplay.
           </p>
@@ -190,7 +187,7 @@ export default function ShopPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="bg-gray-900/50 border-pink-500/30 sticky top-20">
+            <Card className="card-glow sticky top-20">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-pink-400 text-base">
                   <ShoppingCart className="h-4 w-4" />
