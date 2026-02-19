@@ -12,6 +12,7 @@ const ShopPage = lazy(() => import('./pages/ShopPage'));
 const VotePage = lazy(() => import('./pages/VotePage'));
 const DiscordPage = lazy(() => import('./pages/DiscordPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Optimized QueryClient with aggressive caching
@@ -59,6 +60,8 @@ function TitleUpdater() {
       pageTitle = 'Discord - CupCakeMC';
     } else if (path === '/history') {
       pageTitle = 'History - CupCakeMC';
+    } else if (path === '/admin') {
+      pageTitle = 'Admin Dashboard - CupCakeMC';
     }
     
     document.title = pageTitle;
@@ -132,7 +135,17 @@ const historyRoute = createRoute({
   ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, shopRoute, voteRoute, discordRoute, historyRoute]);
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <AdminDashboardPage />
+    </Suspense>
+  ),
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, shopRoute, voteRoute, discordRoute, historyRoute, adminRoute]);
 
 const router = createRouter({ 
   routeTree,

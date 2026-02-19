@@ -1,157 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Redesign CupCakeMC site to match uploaded screenshots (homepage sections + navbar)",
-  "priority": "normal",
+  "title": "Rewrite Motoko backend to compile in production by removing all mo:core usage",
+  "projectName": "CupCakeMC Store",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Redesign the global navigation header to match the uploaded screenshots: left-aligned CupCakeMC logo/brand, centered nav links (Home, Shop, Vote, Discord), and right-aligned cart icon + Login button, using a dark/black translucent bar with a thin pink accent/border and consistent hover states.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "3. yes 2. yes 1. specifc............",
-          "1. recreated 2. same order 3. redesign",
-          "1. all of them 2.same as screenshots"
-        ]
-      },
-      "acceptanceCriteria": [
-        "On desktop widths, nav links appear centered in the header with consistent spacing, matching the screenshot layout.",
-        "Header background is dark/black with subtle translucency and a thin pink divider/border line as in the screenshots.",
-        "Cart icon and Login button are right-aligned and visually consistent with the screenshot styling (rounded button, pink accent).",
-        "Mobile header retains a functional mobile menu and does not break login/cart functionality."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Update the Home page to recreate all homepage sections shown in the screenshots, in the same order: (1) hero/intro area with CupCake branding, (2) Server Status card, (3) Vote section card, (4) Discord section card, (5) “Why Choose CupCakeMC?” three-feature grid; ensure layout, typography, and spacing visually match the screenshots.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "1. all of them 2.same as screenshots"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Homepage section order matches the screenshots: Server Status → Vote → Discord → Why Choose CupCakeMC.",
-        "Each section is presented as a centered dark card with subtle border/glow styling consistent with the screenshots.",
-        "“Why Choose CupCakeMC?” shows three feature cards with icon, title, and description in a 3-column layout on desktop and a stacked layout on mobile.",
-        "All existing routes (Shop/Vote/Discord) remain navigable and functional from the Home page."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Make the Home page “Vote for the Server” section match the screenshots by rendering a list of voting-site buttons (name on the left, external-link icon on the right) using the existing website config vote URLs when available, with sensible fallback defaults (e.g., Minecraft-mp.com, TopG.org).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "can you edit the website like that?",
-          "1. all of them 2.same as screenshots"
-        ]
-      },
-      "acceptanceCriteria": [
-        "If vote URLs exist in website config, the Home page Vote section renders one button per URL; otherwise it shows the fallback sites.",
-        "Each voting site row opens in a new tab and has an external-link icon aligned to the right.",
-        "The Vote section matches the screenshot’s card + button-row visual style (dark rows, subtle borders, pink hover accents)."
-      ]
-    },
-    {
       "id": "REQ-4",
-      "text": "Make the Home page “Join Our Discord” section match the screenshots: centered Discord icon above a pink headline, short descriptive text, and a prominent button that opens the configured Discord invite link in a new tab (with fallback if not configured).",
-      "target": "frontend",
+      "text": "Rewrite `backend/main.mo` to remove all `mo:core/*` imports and use only `mo:base/*` modules (and Motoko built-ins), so the backend compiles in production.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "1. all of them 2.same as screenshots"
+          "rewrite backend now using mo:base only",
+          "rewrite backend now"
         ]
       },
       "acceptanceCriteria": [
-        "Discord section uses a centered Discord icon and a large pink title consistent with the screenshots.",
-        "Clicking the Discord button opens the configured invite URL in a new tab (with a fallback URL if missing).",
-        "The section is displayed as a centered dark card with border/glow consistent with the screenshots."
+        "`backend/main.mo` contains no imports starting with `mo:core/`.",
+        "Project builds successfully for production without the 'mo:core imports' compilation failure."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Apply a coherent CupCakeMC visual theme across the site to match the screenshots: dark background, pink accent color, soft glow/border treatments on cards, and a pixel/arcade-like heading style for key titles (e.g., “Vote for the Server”, “Why Choose CupCakeMC?”).",
-      "target": "frontend",
+      "text": "Replace all logic currently relying on `mo:core`-specific data structures/APIs in `backend/main.mo` with `mo:base` equivalents while preserving the existing public Candid interface and behavior for: user profiles, shop items CRUD, cart operations, UPI purchases, orders listing, and order approval.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "2. yes",
-          "2.same as screenshots"
+          "I will now rewrite your backend using only mo:base imports so production can compile successfully."
         ]
       },
       "acceptanceCriteria": [
-        "Key section headings on Home/Vote/Discord pages use a consistent pixel/arcade-like style and pink accent color.",
-        "Cards and buttons across Home/Vote/Discord/Shop pages share the same dark + pink accent theme (borders/hover/focus states).",
-        "No user-facing text is introduced in a language other than English."
+        "All existing public methods in `backend/main.mo` remain available with the same names, parameters, and return types (no breaking Candid changes).",
+        "Behavior is preserved for: `getCallerUserProfile`, `getUserProfile`, `saveCallerUserProfile`, `registerWithMinecraftUsername`, `updateUserMinecraftUsername`, `addShopItem`, `editShopItem`, `deleteShopItem`, `getAllShopItems`, `getShopItemsByCategory`, `addToCart`, `getCart`, `clearCart`, `completePurchaseWithUPI`, `getPurchaseHistory`, `getAllOrders`, `approveOrder`, `updateUPIConfig`, `getUPIConfig`, `updateWebsiteConfig`, `getWebsiteConfig`.",
+        "All trapping/error paths continue to trap with English error messages (e.g., replace `Runtime.trap` with a production-safe alternative)."
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Add and use the CupCake SMP logo provided by the user as the primary branding asset in the header (and as a favicon/app icon where applicable), ensuring the logo has a transparent background variant for clean display on the dark navbar.",
-      "target": "frontend",
+      "text": "Ensure backend state remains upgrade-safe after migrating away from `mo:core` data structures by implementing stable state serialization + reconstruction in the single `backend/main.mo` actor, initializing defaults when no prior state exists; add `backend/migration.mo` only if required to preserve existing deployed state.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "3. yes"
+          "Ensure state remains upgrade-safe after migrating away from `mo:core` data structures by implementing appropriate upgrade handling (stable state serialization + reconstruction) in the single `backend/main.mo` actor, initializing defaults when no prior state exists. Add `backend/migration.mo` only if required to preserve existing deployed state."
         ]
       },
       "acceptanceCriteria": [
-        "Header displays the CupCake SMP logo next to the brand name, with clean edges on the dark background (transparent logo variant).",
-        "A square favicon/app icon derived from the provided logo is included and referenced by the app.",
-        "Branding remains consistent across main pages (Home/Shop/Vote/Discord)."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Store required generated images in frontend/public/assets/generated and reference them directly from the frontend (do not serve generated images via the backend).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "start now"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All newly generated image files exist under frontend/public/assets/generated.",
-        "Frontend references use static paths (e.g., /assets/generated/...) and work in production builds.",
-        "No backend endpoints are added for image delivery."
+        "On upgrade, previously stored values for `upiConfig`, `websiteConfig`, `nextItemId`, profiles, shop items, carts, and purchases are preserved and restored correctly.",
+        "On fresh install (no prior stable data), the canister initializes with the current default `upiConfig` and `websiteConfig` values and empty collections.",
+        "No new backend actors are introduced; all logic remains in `backend/main.mo` per single-actor constraint.",
+        "`backend/migration.mo` is created only if necessary to preserve already-deployed state; otherwise it is not added."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not modify immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Backend must remain single-actor (all Motoko logic in backend/main.mo); only add a migration file if existing stable state must change."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not introduce any `mo:core/*` imports anywhere that is required to compile the backend for production.",
+    "Preserve the existing public Candid interface (no breaking API changes).",
+    "Use English for any user-facing/trap/error text."
   ],
   "nonGoals": [
-    "Do not implement new authentication providers beyond Internet Identity.",
-    "Do not add real-time features (websockets/chat) or external databases.",
-    "Do not change shop/checkout business logic unless required purely for styling/layout consistency."
+    "Adding new product features beyond replacing `mo:core` usage and making the backend compile in production.",
+    "Changing frontend UI/UX or routes."
   ],
   "imageRequirements": {
-    "required": [
-      "CupCake SMP pixel-art logo with transparent background (cupcakesmp-logo-transparent.dim_200x200.png)",
-      "CupCake SMP square favicon/app icon (cupcakesmp-favicon.dim_64x64.png)",
-      "Dark blurred Minecraft-style hero/banner background image (hero-bg-blur.dim_1920x600.png)"
-    ],
+    "required": [],
     "edits": []
   },
   "userProfileUpdate": {

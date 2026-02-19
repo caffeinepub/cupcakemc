@@ -1,10 +1,10 @@
 import { useState, useEffect, memo } from 'react';
-import { Menu, X, ShoppingCart, LogIn, LogOut, User } from 'lucide-react';
+import { Menu, X, ShoppingCart, LogIn, LogOut, User, Settings } from 'lucide-react';
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
-import { useGetCart, useGetCallerUserProfile } from '../hooks/useQueries';
+import { useGetCart, useGetCallerUserProfile, useIsCallerAdmin, useGetWebsiteConfig } from '../hooks/useQueries';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { getLogoSrc } from '../utils/websiteAppearance';
 
 const NavLink = memo(({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
   <Link
@@ -35,6 +36,8 @@ export default function Header() {
   const routerState = useRouterState();
   const { data: cart = [] } = useGetCart();
   const { data: userProfile, isLoading: profileLoading } = useGetCallerUserProfile();
+  const { data: isAdmin } = useIsCallerAdmin();
+  const { data: websiteConfig } = useGetWebsiteConfig();
 
   const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
   const isLoggingIn = loginStatus === 'logging-in';
@@ -71,6 +74,9 @@ export default function Header() {
 
   const displayName = userProfile?.name || 'User';
 
+  // Get logo source with fallback
+  const logoSrc = websiteConfig ? getLogoSrc(websiteConfig.logo) : '/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png';
+
   return (
     <header className="sticky top-0 z-50 w-full bg-black/95 backdrop-blur-md border-b border-pink-500/30">
       <div className="container mx-auto px-4">
@@ -78,10 +84,13 @@ export default function Header() {
           {/* Left: Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img 
-              src="/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png" 
+              src={logoSrc}
               alt="CupCakeMC" 
               className="h-10 w-10" 
-              loading="eager" 
+              loading="eager"
+              onError={(e) => {
+                e.currentTarget.src = '/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png';
+              }}
             />
             <span className="text-xl font-bold text-pink-400">
               CupCakeMC
@@ -113,138 +122,81 @@ export default function Header() {
             </Button>
             
             {isInitializing ? (
-              <Button variant="outline" disabled className="hidden lg:inline-flex gap-2 border-pink-500/50">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                <span>Loading...</span>
+              <Button variant="outline" disabled className="rounded-full border-pink-500/30">
+                Loading...
               </Button>
             ) : isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="hidden lg:inline-flex gap-2 border-pink-500/50 text-pink-400 hover:bg-pink-500/10 rounded-full px-4">
-                    <User className="h-4 w-4" />
-                    <span className="font-medium">{profileLoading ? 'Loading...' : displayName}</span>
+                  <Button variant="outline" className="rounded-full border-pink-500/30 hover:bg-pink-500/10">
+                    <User className="h-4 w-4 mr-2" />
+                    {displayName}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-gray-900 border-pink-500/30">
+                <DropdownMenuContent align="end" className="w-48 bg-black/95 border-pink-500/30">
                   <DropdownMenuLabel className="text-pink-400">My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-pink-500/20" />
-                  <div className="px-2 py-1.5 text-sm text-gray-400">
-                    <div className="font-medium text-gray-300 mb-1">{userProfile?.name || 'User'}</div>
-                    <div className="text-xs break-all text-gray-500">{identity?.getPrincipal().toString()}</div>
-                  </div>
-                  <DropdownMenuSeparator className="bg-pink-500/20" />
-                  <DropdownMenuItem onClick={handleAuth} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
+                  <DropdownMenuSeparator className="bg-pink-500/30" />
+                  <DropdownMenuItem onClick={() => navigate({ to: '/history' })} className="cursor-pointer hover:bg-pink-500/10">
+                    Purchase History
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate({ to: '/admin' })} className="cursor-pointer hover:bg-pink-500/10">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator className="bg-pink-500/30" />
+                  <DropdownMenuItem onClick={handleAuth} className="cursor-pointer hover:bg-pink-500/10">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button
+              <Button 
                 onClick={handleAuth}
-                disabled={isLoggingIn || isInitializing}
-                className="hidden lg:inline-flex gap-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6"
+                disabled={isLoggingIn}
+                className="rounded-full bg-pink-500 hover:bg-pink-600 text-white"
               >
                 {isLoggingIn ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    <span>Logging in...</span>
-                  </>
+                  'Logging in...'
                 ) : (
                   <>
-                    <LogIn className="h-4 w-4" />
-                    <span>Login</span>
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
                   </>
                 )}
               </Button>
             )}
-            
-            <button
+
+            {/* Mobile Menu Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-gray-300 hover:text-pink-400"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-300 hover:text-pink-400"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-pink-500/20">
-            <nav className="flex flex-col gap-3">
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                to="/shop"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
-              >
-                Shop
-              </Link>
-              <Link
-                to="/vote"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
-              >
-                Vote
-              </Link>
-              <Link
-                to="/discord"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-left px-4 py-2 text-sm font-medium text-gray-300 hover:text-pink-400 hover:bg-pink-500/10 rounded-md transition-colors"
-              >
-                Discord
-              </Link>
-              
-              {isInitializing ? (
-                <Button variant="outline" disabled className="mx-4 mt-2 gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <span>Loading...</span>
-                </Button>
-              ) : isAuthenticated ? (
-                <div className="mx-4 mt-2 space-y-2">
-                  <div className="px-4 py-2 text-sm border border-pink-500/30 rounded-md bg-pink-500/5">
-                    <div className="flex items-center gap-2 text-pink-400 font-medium">
-                      <User className="h-4 w-4" />
-                      {profileLoading ? 'Loading...' : displayName}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1 break-all">{identity?.getPrincipal().toString()}</div>
-                  </div>
-                  <Button
-                    onClick={handleAuth}
-                    variant="destructive"
-                    className="w-full gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  onClick={handleAuth}
-                  disabled={isLoggingIn || isInitializing}
-                  className="mx-4 mt-2 gap-2 bg-pink-500 hover:bg-pink-600"
-                >
-                  {isLoggingIn ? (
-                    <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      <span>Logging in...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="h-4 w-4" />
-                      <span>Login</span>
-                    </>
-                  )}
-                </Button>
+          <nav className="lg:hidden py-4 border-t border-pink-500/30">
+            <div className="flex flex-col gap-4">
+              <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>Home</NavLink>
+              <NavLink to="/shop" onClick={() => setMobileMenuOpen(false)}>Shop</NavLink>
+              <NavLink to="/vote" onClick={() => setMobileMenuOpen(false)}>Vote</NavLink>
+              <NavLink to="/discord" onClick={() => setMobileMenuOpen(false)}>Discord</NavLink>
+              {isAuthenticated && (
+                <NavLink to="/history" onClick={() => setMobileMenuOpen(false)}>Purchase History</NavLink>
               )}
-            </nav>
-          </div>
+              {isAdmin && (
+                <NavLink to="/admin" onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</NavLink>
+              )}
+            </div>
+          </nav>
         )}
       </div>
     </header>

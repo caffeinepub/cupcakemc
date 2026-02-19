@@ -1,143 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T19:54:59.961Z",
+  "generatedAt": "2026-02-17T20:22:23.790Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 7,
-    "implemented": 7,
+    "total": 3,
+    "implemented": 0,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Redesign the global navigation header to match the uploaded screenshots: left-aligned CupCakeMC logo/brand, centered nav links (Home, Shop, Vote, Discord), and right-aligned cart icon + Login button, using a dark/black translucent bar with a thin pink accent/border and consistent hover states.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/index.css"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/index.css"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Update the Home page to recreate all homepage sections shown in the screenshots, in the same order: (1) hero/intro area with CupCake branding, (2) Server Status card, (3) Vote section card, (4) Discord section card, (5) “Why Choose CupCakeMC?” three-feature grid; ensure layout, typography, and spacing visually match the screenshots.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/index.css",
-          "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/src/index.css",
-          "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Make the Home page “Vote for the Server” section match the screenshots by rendering a list of voting-site buttons (name on the left, external-link icon on the right) using the existing website config vote URLs when available, with sensible fallback defaults (e.g., Minecraft-mp.com, TopG.org).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx"
-        ]
-      },
-      {
         "id": "REQ-4",
-        "summary": "Make the Home page “Join Our Discord” section match the screenshots: centered Discord icon above a pink headline, short descriptive text, and a prominent button that opens the configured Discord invite link in a new tab (with fallback if not configured).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/public/assets/generated/discord-icon.dim_32x32.png"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/HomePage.tsx"
-        ]
+        "summary": "Rewrite `backend/main.mo` to remove all `mo:core/*` imports and use only `mo:base/*` modules (and Motoko built-ins), so the backend compiles in production.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Apply a coherent CupCakeMC visual theme across the site to match the screenshots: dark background, pink accent color, soft glow/border treatments on cards, and a pixel/arcade-like heading style for key titles (e.g., “Vote for the Server”, “Why Choose CupCakeMC?”).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css",
-          "frontend/src/pages/VotePage.tsx",
-          "frontend/src/pages/DiscordPage.tsx",
-          "frontend/src/pages/ShopPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/index.html",
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css",
-          "frontend/src/pages/VotePage.tsx",
-          "frontend/src/pages/DiscordPage.tsx",
-          "frontend/src/pages/ShopPage.tsx"
-        ]
+        "summary": "Replace all logic currently relying on `mo:core`-specific data structures/APIs in `backend/main.mo` with `mo:base` equivalents while preserving the existing public Candid interface and behavior for: user profiles, shop items CRUD, cart operations, UPI purchases, orders listing, and order approval.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-6",
-        "summary": "Add and use the CupCake SMP logo provided by the user as the primary branding asset in the header (and as a favicon/app icon where applicable), ensuring the logo has a transparent background variant for clean display on the dark navbar.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
-          "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
-          "frontend/src/components/Header.tsx",
-          "frontend/index.html"
-        ],
-        "matchedFiles": [
-          "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
-          "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
-          "frontend/src/components/Header.tsx",
-          "frontend/index.html"
-        ]
-      },
-      {
-        "id": "REQ-7",
-        "summary": "Store required generated images in frontend/public/assets/generated and reference them directly from the frontend (do not serve generated images via the backend).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
-          "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
-          "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png",
-          "frontend/src/components/Header.tsx",
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/index.html"
-        ],
-        "matchedFiles": [
-          "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
-          "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
-          "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png",
-          "frontend/src/components/Header.tsx",
-          "frontend/src/pages/HomePage.tsx",
-          "frontend/index.html"
-        ]
+        "summary": "Ensure backend state remains upgrade-safe after migrating away from `mo:core` data structures by implementing stable state serialization + reconstruction in the single `backend/main.mo` actor, initializing defaults when no prior state exists; add `backend/migration.mo` only if required to preserve existing deployed state.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
-    "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png",
-    "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png",
-    "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png",
-    "frontend/src/components/Header.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/DiscordPage.tsx",
-    "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/ShopPage.tsx",
-    "frontend/src/pages/VotePage.tsx",
-    "frontend/tailwind.config.js",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/config.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

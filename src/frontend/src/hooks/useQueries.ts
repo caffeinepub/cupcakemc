@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { ShopItem, CartItem, UPIConfig, WebsiteConfig, PurchaseRecord, OrderDetails, UserProfile } from '../backend';
+import type { ShopItem, CartItem, UPIConfig, WebsiteConfig, PurchaseRecord, OrderDetails, UserProfile, Logo, BackgroundSetting } from '../backend';
 import type { Principal } from '@dfinity/principal';
 
 export function useIsCallerAdmin() {
@@ -182,6 +182,8 @@ export function useUpdateWebsiteConfig() {
       homeTagline: string;
       serverOnlineStatus: boolean;
       serverMemberCount: bigint;
+      logo: Logo;
+      backgroundSetting: BackgroundSetting;
     }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.updateWebsiteConfig(
@@ -190,7 +192,9 @@ export function useUpdateWebsiteConfig() {
         config.serverIp, 
         config.homeTagline,
         config.serverOnlineStatus,
-        config.serverMemberCount
+        config.serverMemberCount,
+        config.logo,
+        config.backgroundSetting
       );
     },
     onSuccess: () => {

@@ -1,15 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Redesign the CupCakeMC site header and Home page to visually match the provided screenshots, using the CupCake SMP logo as the primary brand asset.
+**Goal:** Make the Motoko backend compile in production by removing all `mo:core/*` usage and rewriting `backend/main.mo` to use only `mo:base/*` modules (and built-ins), while keeping the existing public Candid API and behavior intact.
 
 **Planned changes:**
-- Redesign the global navigation header to match the screenshot layout (left brand/logo, centered links: Home/Shop/Vote/Discord, right cart icon + Login button) with a dark translucent bar and thin pink accent/border plus consistent hover states.
-- Recreate the Home page sections in the screenshot order: hero/intro, Server Status card, Vote card, Discord card, and “Why Choose CupCakeMC?” three-feature grid with matching typography/spacing and responsive layout.
-- Update the Home page Vote section to render voting-site rows from configured vote URLs (fallback to common vote sites when missing), each opening in a new tab with a right-aligned external-link icon.
-- Update the Home page Discord section to match the screenshot (centered Discord icon, pink headline, short text, and button opening the configured invite link in a new tab with fallback).
-- Apply a consistent dark + pink CupCakeMC theme across key pages (Home/Vote/Discord/Shop), including pixel/arcade-like heading styling for major section titles.
-- Add and use the user-provided CupCake SMP logo in the header and derive a square favicon/app icon from it; ensure a transparent logo variant is used on the dark navbar.
-- Ensure any generated image assets are stored under `frontend/public/assets/generated` and referenced via static paths.
+- Rewrite `backend/main.mo` to eliminate all imports from `mo:core/*` and replace them with `mo:base/*` equivalents.
+- Replace any `mo:core`-specific data structures/APIs in `backend/main.mo` with `mo:base` alternatives, preserving the existing public methods, parameters/return types, and behavior for profiles, shop items CRUD, cart, UPI purchases, orders listing, approval, and config endpoints.
+- Ensure upgrade-safe state by implementing stable state serialization and reconstruction within the single `backend/main.mo` actor (creating `backend/migration.mo` only if required to preserve already-deployed state), with sensible defaults on fresh install.
+- Ensure all trap/error paths remain English and use production-safe trapping (no reliance on `mo:core` runtime APIs).
 
-**User-visible outcome:** The site’s navbar and Home page match the uploaded design screenshots (layout, cards, headings, and pink-accent theme), with working navigation, login/cart, vote links, and a Discord join button using configured URLs.
+**User-visible outcome:** The canister builds successfully for production without `mo:core` import failures, and all existing backend APIs continue to work the same for user profiles, shop/cart flows, UPI purchasing, order management, and configuration, including across upgrades.

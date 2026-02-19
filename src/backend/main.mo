@@ -1,17 +1,22 @@
 import Map "mo:core/Map";
-import Principal "mo:core/Principal";
-import Nat "mo:core/Nat";
 import List "mo:core/List";
 import Array "mo:core/Array";
-import Iter "mo:core/Iter";
-import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Text "mo:core/Text";
+import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
+import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 
+import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Storage "blob-storage/Storage";
 
+// persistent imports must not be used
 actor {
+  include MixinStorage();
+
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -30,8 +35,11 @@ actor {
     homeTagline = "Welcome to CupCakeMC - The Pinkest Minecraft Server!";
     serverOnlineStatus = true;
     serverMemberCount = 0;
+    logo = #url("");
+    backgroundSetting = #color({ value = "#FFFFFF" });
   };
 
+  // Persistent actor state wrapped in "Self" type.
   type Self = {
     upiConfig : UPIConfig;
     websiteConfig : WebsiteConfig;
@@ -83,6 +91,16 @@ actor {
     discordUsername : Text;
   };
 
+  public type Logo = {
+    #url : Text;
+    #blob : Storage.ExternalBlob;
+  };
+
+  public type BackgroundSetting = {
+    #color : { value : Text };
+    #image : { value : Text };
+  };
+
   public type WebsiteConfig = {
     discordInviteLink : Text;
     votePageUrls : [Text];
@@ -90,6 +108,8 @@ actor {
     homeTagline : Text;
     serverOnlineStatus : Bool;
     serverMemberCount : Nat;
+    logo : Logo;
+    backgroundSetting : BackgroundSetting;
   };
 
   public type OrderDetails = {
@@ -175,6 +195,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can perform this action");
     };
+
     let id = nextItemId;
     nextItemId += 1;
 
@@ -444,6 +465,8 @@ actor {
     homeTagline : Text,
     serverOnlineStatus : Bool,
     serverMemberCount : Nat,
+    logo : Logo,
+    backgroundSetting : BackgroundSetting,
   ) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can perform this action");
@@ -464,18 +487,20 @@ actor {
       Runtime.trap("Home tagline cannot be empty");
     };
 
-    websiteConfig := {
+    let newConfig = {
       discordInviteLink = trimmedDiscordInviteLink;
       votePageUrls;
       serverIp = trimmedServerIp;
       homeTagline = trimmedHomeTagline;
       serverOnlineStatus;
       serverMemberCount;
+      logo;
+      backgroundSetting;
     };
+    websiteConfig := newConfig;
   };
 
   public query func getWebsiteConfig() : async WebsiteConfig {
     websiteConfig;
   };
 };
-

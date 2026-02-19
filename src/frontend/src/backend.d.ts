@@ -7,6 +7,43 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export class ExternalBlob {
+    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
+    getDirectURL(): string;
+    static fromURL(url: string): ExternalBlob;
+    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
+    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
+}
+export type BackgroundSetting = {
+    __kind__: "color";
+    color: {
+        value: string;
+    };
+} | {
+    __kind__: "image";
+    image: {
+        value: string;
+    };
+};
+export interface UPIConfig {
+    merchantName: string;
+    upiId: string;
+}
+export interface ShopItem {
+    id: bigint;
+    name: string;
+    description: string;
+    available: boolean;
+    category: string;
+    price: bigint;
+}
+export type Logo = {
+    __kind__: "url";
+    url: string;
+} | {
+    __kind__: "blob";
+    blob: ExternalBlob;
+};
 export interface PurchaseRecord {
     status: PurchaseStatus;
     minecraftUsername: string;
@@ -14,10 +51,6 @@ export interface PurchaseRecord {
     timestamp: bigint;
     discordUsername: string;
     items: Array<CartItem>;
-}
-export interface UPIConfig {
-    merchantName: string;
-    upiId: string;
 }
 export interface OrderDetails {
     status: PurchaseStatus;
@@ -35,8 +68,10 @@ export interface CartItem {
 }
 export interface WebsiteConfig {
     homeTagline: string;
+    logo: Logo;
     serverMemberCount: bigint;
     discordInviteLink: string;
+    backgroundSetting: BackgroundSetting;
     serverOnlineStatus: boolean;
     votePageUrls: Array<string>;
     serverIp: string;
@@ -44,14 +79,6 @@ export interface WebsiteConfig {
 export interface UserProfile {
     name: string;
     minecraftUsername: string;
-}
-export interface ShopItem {
-    id: bigint;
-    name: string;
-    description: string;
-    available: boolean;
-    category: string;
-    price: bigint;
 }
 export enum PurchaseStatus {
     unapproved = "unapproved",
@@ -86,5 +113,5 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateUPIConfig(upiId: string, merchantName: string): Promise<void>;
     updateUserMinecraftUsername(user: Principal, newMinecraftUsername: string): Promise<void>;
-    updateWebsiteConfig(discordInviteLink: string, votePageUrls: Array<string>, serverIp: string, homeTagline: string, serverOnlineStatus: boolean, serverMemberCount: bigint): Promise<void>;
+    updateWebsiteConfig(discordInviteLink: string, votePageUrls: Array<string>, serverIp: string, homeTagline: string, serverOnlineStatus: boolean, serverMemberCount: bigint, logo: Logo, backgroundSetting: BackgroundSetting): Promise<void>;
 }

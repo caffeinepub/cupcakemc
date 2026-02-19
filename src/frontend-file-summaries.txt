@@ -1,7 +1,7 @@
 {
-  "frontend/src/App.tsx": "Main application component with lazy-loaded routes, optimized QueryClient with aggressive caching (10min staleTime, 30min gcTime), route preloading, and Suspense boundaries for code splitting.",
+  "frontend/src/App.tsx": "Main application component with lazy-loaded routes including new /admin route, optimized QueryClient with aggressive caching, route preloading, and Suspense boundaries for code splitting.",
   "frontend/src/pages/HomePage.tsx": "Redesigned landing page with hero section using generated background, followed by Server Status, Vote (with external link rows), Discord, and Why Choose CupCakeMC sections in screenshot order with matching card styling.",
-  "frontend/src/components/Header.tsx": "Redesigned navigation header with 3-zone layout (left logo, centered nav links, right cart/login), dark translucent background with pink accent border, and rounded login button matching screenshot style.",
+  "frontend/src/components/Header.tsx": "Redesigned navigation header with dynamic logo rendering from WebsiteConfig (with fallback to default asset), admin dashboard link in authenticated dropdown for admins only, and responsive mobile menu.",
   "frontend/src/components/ThemeToggle.tsx": "Theme switcher button component that toggles between light and dark modes using next-themes.",
   "frontend/src/components/Hero.tsx": "Hero section with main heading, description, CTA buttons, and stats display showing player count, uptime, and support availability.",
   "frontend/src/components/Features.tsx": "Features section displaying six key features (DDoS Protection, High Performance, Active Community, 24/7 Support, Regular Events, Global Network) in a responsive grid.",
@@ -9,15 +9,15 @@
   "frontend/src/components/Community.tsx": "Community section highlighting Discord, events, rewards program, staff team, and social media links with interactive cards.",
   "frontend/src/components/Footer.tsx": "Footer component with copyright notice, caffeine.ai attribution with heart icon, and \"Secure UPI payments\" text replacing Razorpay reference.",
   "frontend/src/index.css": "Global styles with dark background, pink accent color system, custom utility classes for card glow effects, pixel headings, and nav link hover animations.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks with added useGetCallerUserProfile and useSaveCallerUserProfile for user profile management, plus all existing shop, cart, purchase, and config hooks with optimized caching.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including updated useUpdateWebsiteConfig mutation that accepts full WebsiteConfig with logo and backgroundSetting parameters, maintaining proper query invalidation.",
   "frontend/src/components/ProfileSetupModal.tsx": "Non-dismissible modal dialog that prompts users to enter their name and Minecraft username on first login, with form validation and loading states.",
-  "frontend/src/components/Layout.tsx": "Root layout component that wraps all pages with Header and Footer, includes ProfileSetupModal that shows when authenticated user has no profile, and applies natural scrolling behavior.",
+  "frontend/src/components/Layout.tsx": "Root layout component that wraps all pages with Header and Footer, applies configured background styling from WebsiteConfig, includes ProfileSetupModal, and enables natural scrolling behavior.",
   "frontend/src/pages/ShopPage.tsx": "Shop page with pixel heading, category filters, and card-based item grid using the shared dark+pink theme with glow borders and consistent hover states.",
   "frontend/src/pages/VotePage.tsx": "Vote page with pixel heading, centered card layout, and voting site rows styled as dark bordered buttons with external link icons and pink hover accents.",
   "frontend/src/pages/DiscordPage.tsx": "Discord invitation page with pixel heading, centered Discord icon, and prominent pink CTA button matching the screenshot design.",
   "frontend/tailwind.config.js": "Tailwind configuration extended with pixel font family, custom glow shadows, and border radius adjustments for the CupCakeMC theme.",
   "frontend/src/components/UPIQRCodeModal.tsx": "UPI QR code modal component that generates scannable QR codes for UPI payments using QR Server API, with \"I've Completed Payment\" button that triggers backend purchase completion and proper error handling to keep modal open on failure.",
-  "frontend/src/pages/AdminDashboardPage.tsx": "Admin dashboard with head-admin-only Admin Management section that provides add and remove admin functionality by exact profile name with confirmation dialogs and proper error handling, without displaying an admin list.",
+  "frontend/src/pages/AdminDashboardPage.tsx": "Admin dashboard with tabbed interface for appearance customization (logo and background with URL/upload options and live previews) and deployment troubleshooting accordion with detailed guidance on build errors, asset paths, canister upgrades, environment config, and log collection.",
   "frontend/src/main.tsx": "Application entry point that wraps the app with InternetIdentityProvider only, removing duplicate QueryClient instance to fix mutation invalidation issues.",
   "frontend/src/hooks/useInternetIdentity.ts": "Internet Identity provider with improved login flow that handles already-authenticated users gracefully, validates delegation expiry on initialization, and properly synchronizes identity state after successful login or page reload.",
   "frontend/src/hooks/useActor.ts": "Actor initialization hook with enhanced post-login synchronization that delays query invalidation to ensure actor is fully ready before triggering dependent profile queries.",
@@ -31,5 +31,6 @@
   "frontend/src/pages/NotFoundPage.tsx": "Simple 404 page component displaying \"Page Not Found\" message with a button to return home.",
   "frontend/public/assets/generated/cupcakesmp-logo-transparent.dim_200x200.png": "Transparent 200x200px CupCake SMP logo asset used for header branding.",
   "frontend/public/assets/generated/cupcakesmp-favicon.dim_64x64.png": "64x64px square favicon derived from the CupCake SMP logo for browser tab/app icon.",
-  "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png": "1920x600px blurred gradient background in pink/purple tones for the homepage hero section."
+  "frontend/public/assets/generated/hero-bg-blur.dim_1920x600.png": "1920x600px blurred gradient background in pink/purple tones for the homepage hero section.",
+  "frontend/src/utils/websiteAppearance.ts": "Utility helpers for normalizing WebsiteConfig appearance fields into render-ready values including logo source extraction with fallback, background CSS style generation, and URL/color validation functions."
 }

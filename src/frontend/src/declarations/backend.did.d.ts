@@ -10,7 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type BackgroundSetting = { 'color' : { 'value' : string } } |
+  { 'image' : { 'value' : string } };
 export interface CartItem { 'shopItem' : ShopItem, 'quantity' : bigint }
+export type ExternalBlob = Uint8Array;
+export type Logo = { 'url' : string } |
+  { 'blob' : ExternalBlob };
 export interface OrderDetails {
   'status' : PurchaseStatus,
   'identityName' : string,
@@ -46,13 +51,41 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface WebsiteConfig {
   'homeTagline' : string,
+  'logo' : Logo,
   'serverMemberCount' : bigint,
   'discordInviteLink' : string,
+  'backgroundSetting' : BackgroundSetting,
   'serverOnlineStatus' : boolean,
   'votePageUrls' : Array<string>,
   'serverIp' : string,
 }
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addShopItem' : ActorMethod<
     [string, string, bigint, string, boolean],
@@ -84,7 +117,16 @@ export interface _SERVICE {
   'updateUPIConfig' : ActorMethod<[string, string], undefined>,
   'updateUserMinecraftUsername' : ActorMethod<[Principal, string], undefined>,
   'updateWebsiteConfig' : ActorMethod<
-    [string, Array<string>, string, string, boolean, bigint],
+    [
+      string,
+      Array<string>,
+      string,
+      string,
+      boolean,
+      bigint,
+      Logo,
+      BackgroundSetting,
+    ],
     undefined
   >,
 }
