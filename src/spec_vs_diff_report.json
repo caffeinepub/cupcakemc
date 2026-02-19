@@ -1,48 +1,127 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T20:22:23.788Z",
-  "summary": "The diff does not implement the requested mo:core removal; backend/main.mo still imports multiple mo:core modules (including Runtime.trap usage), and there is no visible upgrade-safe stable-state migration implementation. Additionally, project_state.json was modified though not requested.",
+  "generatedAt": "2026-02-19T17:13:17.826Z",
+  "summary": "The diff implements a comprehensive e-commerce shop system with backend data models, CRUD operations, shopping cart functionality, and frontend pages (browse, detail, cart, admin management). However, several key requirements are missing or incomplete, and there's a critical constraint violation: the backend uses mo:core imports extensively instead of mo:base only.",
   "missing_requirements": [
     {
-      "id": "REQ-4",
-      "requirement": "Rewrite backend/main.mo to remove all mo:core/* imports and use only mo:base/* modules (and Motoko built-ins), so the backend compiles in production.",
-      "reason": "backend/main.mo still contains many imports starting with mo:core/, directly violating the acceptance criteria.",
+      "id": "REQ-1",
+      "requirement": "Use mo:base types only - no mo:core imports in backend code",
+      "reason": "Backend (main.mo) imports and uses mo:core extensively: Map, List, Array, Text, Iter, Nat, Principal, Runtime from mo:core. This directly violates the constraint 'Use mo:base only - no mo:core imports in backend code'.",
       "evidence": [
-        "backend/main.mo (truncated): import Map \"mo:core/Map\"; import List \"mo:core/List\"; import Array \"mo:core/Array\"; import Time \"mo:core/Time\"; import Text \"mo:core/Text\"; import Nat \"mo:core/Nat\"; import Iter \"mo:core/Iter\"; import Principal \"mo:core/Principal\"; import Runtime \"mo:core/Runtime\";"
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "ShopItem type with imageUrl field",
+      "reason": "The ShopItem type definition in backend/main.mo does not include an 'imageUrl' field as specified in the requirement. Only id, name, description, price, category, and available fields are present.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "ShopItem type with stock field",
+      "reason": "The ShopItem type does not include a 'stock' (Nat) field. The requirement specifies stock availability tracking, but this field is missing from the type definition.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "ShopItem type with isActive field",
+      "reason": "The ShopItem type uses 'available' (Bool) instead of 'isActive' (Bool) as specified in the requirement. While semantically similar, this doesn't match the exact field name requirement.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "ShopItem id field as Text type",
+      "reason": "The ShopItem type defines 'id' as Nat instead of Text as specified in the requirement. The diff shows 'id : Nat' in the type definition.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Backend CRUD operations: createItem, updateItem, deleteItem, getItem, listItems",
+      "reason": "The diff summary shows functions named addShopItem, editShopItem, deleteShopItem, but does not mention 'createItem', 'updateItem', 'getItem', or 'listItems' by those exact names. The requirement specifies these specific function names.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Cart operations validate stock availability",
+      "reason": "No evidence in the diff that addToCart or updateQuantity operations validate against the stock field. Since the stock field is missing from ShopItem, this validation cannot be implemented.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Out of stock items visually indicated",
+      "reason": "ShopPage.tsx shows availability badges ('Available'/'Unavailable'), but without a stock field in the backend, true stock-level indication (e.g., '3 left in stock', '0 in stock') cannot be implemented as intended.",
+      "evidence": [
+        "frontend/src/pages/ShopPage.tsx"
       ]
     },
     {
       "id": "REQ-5",
-      "requirement": "Replace all logic relying on mo:core-specific data structures/APIs in backend/main.mo with mo:base equivalents while preserving the existing public Candid interface and behavior for the specified methods; ensure trapping/error paths trap with English messages using a production-safe alternative.",
-      "reason": "The diff shows continued usage of mo:core data structures/APIs (Map, List, Runtime.trap), and the file is truncated so there is no evidence that all listed public methods are preserved with identical signatures/behavior or that trapping was migrated away from mo:core Runtime.trap.",
+      "requirement": "Show stock availability in item detail view",
+      "reason": "ItemDetailPage.tsx shows an 'available' badge but cannot display actual stock quantity since the backend ShopItem type lacks a stock field.",
       "evidence": [
-        "backend/main.mo (truncated): uses Map.Map and List.List in state types and values",
-        "backend/main.mo (truncated): Runtime.trap(\"Unauthorized: ...\")"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Ensure backend state remains upgrade-safe after migrating away from mo:core data structures by implementing stable state serialization + reconstruction in backend/main.mo (and add backend/migration.mo only if necessary).",
-      "reason": "No evidence in the truncated diff of stable variables, preupgrade/postupgrade hooks, serialization, or reconstruction logic; also no backend/migration.mo was added (which is fine only if not needed, but upgrade-safe handling still must be present).",
-      "evidence": [
-        "backend/main.mo (truncated): shows var/let state declarations but no visible stable state serialization/reconstruction hooks",
-        "File diff summary: Added: 0 (no backend/migration.mo added)"
+        "frontend/src/pages/ItemDetailPage.tsx"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Modification of project_state.json to add/track internal feature request entries (AR-1..AR-7) and known issues.",
-      "reason": "The BuildRequest only asks for backend Motoko changes (mo:core removal, preservation of Candid interface/behavior, upgrade-safe state). It does not request updating project tracking metadata.",
+      "description": "UPI payment integration with QR code generation and CheckoutModal",
+      "reason": "The diff includes UPI payment functionality (CheckoutModal.tsx, UPI QR code generation, completePurchaseWithUPI) which is explicitly listed in non-goals: 'UPI payment integration (Phase 3)'.",
       "evidence": [
-        "project_state.json (modified): added/updated new_feature_requests entries referencing AR-1..AR-7 and REQ mappings"
+        "frontend/src/components/CheckoutModal.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ShopPage.tsx"
+      ]
+    },
+    {
+      "description": "Purchase history functionality with PurchaseRecord type and storage",
+      "reason": "Backend main.mo includes PurchaseRecord type, userPurchases storage, and related functionality. This is explicitly excluded in non-goals: 'Order history and tracking (Phase 4)'.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "User profile management with UserProfile type and profile operations",
+      "reason": "Backend includes UserProfile type, userProfiles storage, getCallerUserProfile, getUserProfile, and saveCallerUserProfile functions. This is explicitly excluded in non-goals: 'User profile management (Phase 2)'.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "description": "ProfileSetupModal for user registration workflow",
+      "reason": "The diff includes ProfileSetupModal component for capturing user profile information, which falls under 'User registration/login beyond existing Internet Identity' listed in non-goals for Phase 2.",
+      "evidence": [
+        "frontend/src/components/Layout.tsx",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.84,
+  "confidence": 0.92,
   "changed_files": [
     "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/CheckoutModal.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/ItemDetailPage.tsx",
+    "frontend/src/pages/ShopManagementPage.tsx",
+    "frontend/src/pages/ShopPage.tsx",
     "project_state.json"
   ]
 }

@@ -1,6 +1,131 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "CupCakeMC Store — Frontend impact assessment for backend mo:core removal",
-  "requirements": []
+  "title": "Frontend Implementation for Core Shop with Browse, Details, and Cart",
+  "requirements": [
+    {
+      "id": "REQ-4",
+      "summary": "Build shop browse page displaying all active items in a grid layout with category filtering",
+      "acceptanceCriteria": [
+        "Grid layout displays all shop items with images",
+        "Items show price formatted as currency",
+        "Out of stock items visually indicated",
+        "Category filter works to narrow results",
+        "Layout matches existing ShopPage.tsx styling"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ShopPage.tsx",
+          "operation": "modify",
+          "description": "Update the shop browse page to display items in a grid layout showing item image, name, price, and stock status. Add category filtering functionality to filter items by category. Ensure the grid is responsive and matches the current design aesthetic. Display 'Out of Stock' badges for unavailable items. Use the existing useGetAllShopItems query hook to fetch items from the backend."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useGetShopItemsByCategory query hook that calls actor.getShopItemsByCategory(category) to support category filtering. Ensure the hook is properly typed with ShopItem[] return type and follows the existing query patterns in the file."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Create item detail view showing full description, larger image, price, stock availability, and quantity selector with add to cart button",
+      "acceptanceCriteria": [
+        "Detail view accessible by clicking item card",
+        "Full item information displayed clearly",
+        "Quantity selector allows choosing amount before adding to cart",
+        "Add to cart button disabled when out of stock",
+        "Success feedback shown when item added to cart"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ItemDetailPage.tsx",
+          "operation": "create",
+          "description": "Create a new ItemDetailPage component that displays full item details including a larger image, complete description, price, stock availability status, and a quantity selector input. Include an 'Add to Cart' button that calls the useAddToCart mutation with the selected quantity. Disable the button when the item is out of stock (available: false). Show success toast feedback when item is added to cart. Use route parameter to get the item ID and fetch item details from the shop items list. Match the styling of the existing ShopPage."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new route for '/shop/:itemId' that renders the ItemDetailPage component. Use lazy loading pattern consistent with existing routes. Ensure the route is positioned correctly in the Routes structure."
+        },
+        {
+          "path": "frontend/src/pages/ShopPage.tsx",
+          "operation": "modify",
+          "description": "Update item cards to be clickable and navigate to the item detail page using React Router's Link or useNavigate. Wrap each item card with navigation to '/shop/{itemId}' where itemId is the shop item's id field."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useAddToCart mutation hook that calls actor.addToCart(itemId, quantity). Include proper error handling and success feedback. Invalidate the 'cart' query key on success to refresh cart data. Follow the existing mutation patterns in the file."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Implement shopping cart UI component showing added items with quantities, individual prices, total price calculation, and remove buttons",
+      "acceptanceCriteria": [
+        "Cart displays all added items with current quantities",
+        "Quantity can be adjusted inline",
+        "Remove button removes items from cart",
+        "Total price updates automatically",
+        "Empty cart shows helpful message",
+        "Cart count badge updates in header"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/CartPanel.tsx",
+          "operation": "create",
+          "description": "Create a CartPanel component that displays all cart items fetched using useGetCart query. For each cart item, show the shop item name, quantity, individual price, and a remove button. Include inline quantity adjustment controls (increment/decrement buttons). Calculate and display the total price by summing (item.shopItem.price * item.quantity) for all items. Show an empty state message when the cart is empty. Include a 'Clear Cart' button that calls useClearCart mutation. Add a checkout button that opens the existing CheckoutModal. Style the panel to match the existing design system."
+        },
+        {
+          "path": "frontend/src/pages/ShopPage.tsx",
+          "operation": "modify",
+          "description": "Integrate the CartPanel component into the ShopPage layout. Position it either as a sidebar or toggle panel depending on screen size. Ensure it updates in real-time when items are added or removed from the cart."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useGetCart query hook that calls actor.getCart() returning CartItem[]. Add useRemoveFromCart mutation that calls actor.addToCart(itemId, 0n) to remove an item (quantity zero). Add useUpdateCartQuantity mutation that calls actor.addToCart(itemId, newQuantity) to update quantities. Add useClearCart mutation that calls actor.clearCart(). All mutations should invalidate the 'cart' query key on success."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Update the cart count badge in the header to display the total number of items in the cart (sum of all item quantities). Use the useGetCart query to fetch cart data and calculate the count. Ensure the badge updates automatically when cart changes. The badge should be visible when cart is not empty."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Build admin panel for managing shop items with create, edit, and delete forms",
+      "acceptanceCriteria": [
+        "Admin-only UI accessible from navigation when authorized",
+        "Create form validates all required fields",
+        "Edit form pre-populates with existing item data",
+        "Delete action includes confirmation prompt",
+        "Forms provide clear success/error feedback",
+        "Non-admin users cannot access admin routes"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ShopManagementPage.tsx",
+          "operation": "create",
+          "description": "Create a ShopManagementPage component for admin CRUD operations on shop items. Display a table/list of all shop items with edit and delete action buttons. Include a 'Create New Item' button that opens a form modal or navigates to a creation form. For the create form, include inputs for name (Text), description (Text), price (number converted to Nat), category (Text), and available (boolean checkbox). Validate that all required fields are filled. For edit, pre-populate the form with existing item data. For delete, show a confirmation dialog before calling the delete mutation. Use useAddShopItem, useEditShopItem, and useDeleteShopItem mutations. Show success/error toast messages. Protect the page by checking useIsCallerAdmin and redirecting non-admin users to the home page."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new route for '/admin/shop' that renders the ShopManagementPage component. Use lazy loading pattern. Ensure the route is protected by wrapping it in an admin check or using a route guard that verifies useIsCallerAdmin returns true."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Add a navigation link to 'Shop Management' (/admin/shop) in the header navigation. Only display this link when useIsCallerAdmin returns true. Position it in the admin section of the navigation menu."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useAddShopItem mutation that calls actor.addShopItem(name, description, price, category, available) where price is converted from number to BigInt. Add useEditShopItem mutation that calls actor.editShopItem(id, name, description, price, category, available). Add useDeleteShopItem mutation that calls actor.deleteShopItem(id). All mutations should invalidate the 'shopItems' query key on success to refresh the shop items list."
+        }
+      ]
+    }
+  ]
 }

@@ -9,10 +9,12 @@ import { Loader2 } from 'lucide-react';
 
 // Lazy load non-critical pages
 const ShopPage = lazy(() => import('./pages/ShopPage'));
+const ItemDetailPage = lazy(() => import('./pages/ItemDetailPage'));
 const VotePage = lazy(() => import('./pages/VotePage'));
 const DiscordPage = lazy(() => import('./pages/DiscordPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const ShopManagementPage = lazy(() => import('./pages/ShopManagementPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Optimized QueryClient with aggressive caching
@@ -54,6 +56,8 @@ function TitleUpdater() {
       pageTitle = 'CupCakeMC';
     } else if (path === '/shop') {
       pageTitle = 'Shop - CupCakeMC';
+    } else if (path.startsWith('/shop/')) {
+      pageTitle = 'Item Details - CupCakeMC';
     } else if (path === '/vote') {
       pageTitle = 'Vote - CupCakeMC';
     } else if (path === '/discord') {
@@ -62,6 +66,8 @@ function TitleUpdater() {
       pageTitle = 'History - CupCakeMC';
     } else if (path === '/admin') {
       pageTitle = 'Admin Dashboard - CupCakeMC';
+    } else if (path === '/admin/shop') {
+      pageTitle = 'Shop Management - CupCakeMC';
     }
     
     document.title = pageTitle;
@@ -101,6 +107,16 @@ const shopRoute = createRoute({
   component: () => (
     <Suspense fallback={<PageLoader />}>
       <ShopPage />
+    </Suspense>
+  ),
+});
+
+const itemDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/shop/$itemId',
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <ItemDetailPage />
     </Suspense>
   ),
 });
@@ -145,7 +161,26 @@ const adminRoute = createRoute({
   ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, shopRoute, voteRoute, discordRoute, historyRoute, adminRoute]);
+const shopManagementRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/shop',
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <ShopManagementPage />
+    </Suspense>
+  ),
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  shopRoute,
+  itemDetailRoute,
+  voteRoute,
+  discordRoute,
+  historyRoute,
+  adminRoute,
+  shopManagementRoute,
+]);
 
 const router = createRouter({ 
   routeTree,

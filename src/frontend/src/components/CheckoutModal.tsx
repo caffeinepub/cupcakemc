@@ -133,7 +133,7 @@ export default function CheckoutModal({
                       key={index}
                       className="flex items-center gap-2 p-2 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-pink-500/20"
                     >
-                      <CheckCircle2 className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-pink-400 shrink-0" />
                       <span className="text-white font-medium text-sm">{item.shopItem.name}</span>
                     </div>
                   ))}

@@ -1,68 +1,69 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
-  "summary": "New project",
+  "projectStateVersion": 7,
+  "summary": "Phase 1: Core Shop (browse items, view details, basic cart with add/remove) - building fresh with mo:base only",
   "architectural_notes": [
-    "Backend must use mo:base imports only; mo:core imports are not supported in production builds."
+    "Backend must use mo:base imports only; mo:core imports are not supported in production builds.",
+    "Building in phases: Phase 1 (Core Shop: browse, details, cart) first, then user accounts, purchasing, and advanced features"
   ],
-  "known_issues": [
-    "Deployment fails because backend source still contains mo:core/* imports (production cannot compile).",
-    "Attempts to rewrite backend to mo:base-only have not been successfully applied; system reports: \"The AI couldn't implement your request. Please simplify or rephrase your prompt.\" Deployment continues to fail while mo:core imports remain."
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-build-shop-browse-page-displaying-all-active-items-in-a-grid-layout-matching-the-current-website-design-show-item-image-name-price-and-stock-status-include-category-filtering",
+      "title": "Build shop browse page displaying all active items in a grid layout matching the current website design. Show item image, name, price, and stock status. Include category filtering.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-item-detail-view-showing-full-description-larger-image-price-stock-availability-and-quantity-selector-with-add-to-cart-button-match-current-website-styling",
+      "title": "Create item detail view showing full description, larger image, price, stock availability, and quantity selector with add to cart button. Match current website styling.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-shopping-cart-ui-component-showing-added-items-with-quantities-individual-prices-total-price-calculation-and-remove-buttons-include-empty-cart-state",
+      "title": "Implement shopping cart UI component showing added items with quantities, individual prices, total price calculation, and remove buttons. Include empty cart state.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-admin-panel-for-managing-shop-items-with-create-edit-and-delete-forms-include-image-url-input-price-validation-stock-management-and-category-selection-protect-with-admin-authorization",
+      "title": "Build admin panel for managing shop items with create, edit, and delete forms. Include image URL input, price validation, stock management, and category selection. Protect with admin authorization.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    }
   ],
-  "isFixRequest": true,
-  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Rewrite backend to use only mo:base imports (remove mo:core imports causing deployment failure)",
-      "reqIds": [],
-      "status": "in_progress"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Update `backend/main.mo` to remove all `mo:core/*` imports and replace them with `mo:base/*` equivalents (or language built-ins) so the backend compiles in production.",
+      "summary": "Create backend data model for shop items with fields: id (Text), name (Text), description (Text), price (Nat), imageUrl (Text), stock (Nat), category (Text), isActive (Bool). Use mo:base types only.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-3",
-      "summary": "Replace all usages that depend on `mo:core`-only APIs in `backend/main.mo` with production-compatible `mo:base` implementations while preserving the existing public Candid interface and behavior for: user profiles, shop items CRUD, cart operations, UPI purchases, orders listing, and order approval.",
+      "id": "AR-2",
+      "summary": "Implement backend CRUD operations for shop items: createItem, updateItem, deleteItem, getItem, listItems. Include admin authorization checks using existing isAdmin pattern.",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-4",
-      "summary": "Ensure state remains upgrade-safe after migrating away from `mo:core` data structures by implementing appropriate upgrade handling (stable state serialization + reconstruction) in the single `backend/main.mo` actor, initializing defaults when no prior state exists. Add `backend/migration.mo` only if required to preserve existing deployed state.",
+      "id": "AR-3",
+      "summary": "Create shopping cart data model supporting item quantities, stored per user principal. Implement addToCart, removeFromCart, updateQuantity, getCart, and clearCart operations.",
       "reqIds": [
         "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Rewrite `backend/main.mo` to remove all `mo:core/*` imports and use only `mo:base/*` modules (and Motoko built-ins), so the backend compiles in production.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Replace all logic currently relying on `mo:core`-specific data structures/APIs in `backend/main.mo` with `mo:base` equivalents while preserving the existing public Candid interface and behavior for: user profiles, shop items CRUD, cart operations, UPI purchases, orders listing, and order approval.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Ensure backend state remains upgrade-safe after migrating away from `mo:core` data structures by implementing stable state serialization + reconstruction in the single `backend/main.mo` actor, initializing defaults when no prior state exists; add `backend/migration.mo` only if required to preserve existing deployed state.",
-      "reqIds": [
-        "REQ-6"
       ],
       "status": "pending"
     }

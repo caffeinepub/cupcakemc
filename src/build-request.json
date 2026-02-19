@@ -1,88 +1,170 @@
 {
   "kind": "build_request",
-  "title": "Rewrite Motoko backend to compile in production by removing all mo:core usage",
-  "projectName": "CupCakeMC Store",
-  "priority": "high",
+  "title": "Build Phase 1: Core Shop with Browse, Details, and Cart",
+  "projectName": "Minecraft Shop",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Rewrite `backend/main.mo` to remove all `mo:core/*` imports and use only `mo:base/*` modules (and Motoko built-ins), so the backend compiles in production.",
+      "id": "REQ-1",
+      "text": "Create backend data model for shop items with fields: id (Text), name (Text), description (Text), price (Nat), imageUrl (Text), stock (Nat), category (Text), isActive (Bool). Use mo:base types only.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-recent"
         ],
         "quotes": [
-          "rewrite backend now using mo:base only",
-          "rewrite backend now"
+          "Shop items data structure — Same fields as current (name, description, price, image, stock, category, etc.)"
         ]
       },
       "acceptanceCriteria": [
-        "`backend/main.mo` contains no imports starting with `mo:core/`.",
-        "Project builds successfully for production without the 'mo:core imports' compilation failure."
+        "ShopItem type defined with all specified fields using mo:base types",
+        "Items stored in stable variable using HashMap or Array",
+        "No mo:core imports present in backend code"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement backend CRUD operations for shop items: createItem, updateItem, deleteItem, getItem, listItems. Include admin authorization checks using existing isAdmin pattern.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Admin CRUD for shop items",
+          "Admin functionality — Same CRUD operations you have now for managing shop items"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All CRUD endpoints implemented and callable from frontend",
+        "Admin-only operations protected by authorization",
+        "listItems returns all active shop items",
+        "Operations handle edge cases (item not found, duplicate IDs)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Create shopping cart data model supporting item quantities, stored per user principal. Implement addToCart, removeFromCart, updateQuantity, getCart, and clearCart operations.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Basic cart (add/remove with quantities, same persistence and user behavior as current)",
+          "Cart behavior — Same as current (quantities, persistence, user-specific or anonymous)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Cart persists across page refreshes",
+        "Each user has isolated cart state",
+        "Quantities can be increased/decreased",
+        "Cart operations validate stock availability",
+        "Cart can be cleared entirely"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Build shop browse page displaying all active items in a grid layout matching the current website design. Show item image, name, price, and stock status. Include category filtering.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Browse items with the same data structure as current",
+          "Same UI layout and styling as current website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Grid layout displays all shop items with images",
+        "Items show price formatted as currency",
+        "Out of stock items visually indicated",
+        "Category filter works to narrow results",
+        "Layout matches existing ShopPage.tsx styling"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Replace all logic currently relying on `mo:core`-specific data structures/APIs in `backend/main.mo` with `mo:base` equivalents while preserving the existing public Candid interface and behavior for: user profiles, shop items CRUD, cart operations, UPI purchases, orders listing, and order approval.",
-      "target": "backend",
+      "text": "Create item detail view showing full description, larger image, price, stock availability, and quantity selector with add to cart button. Match current website styling.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent"
         ],
         "quotes": [
-          "I will now rewrite your backend using only mo:base imports so production can compile successfully."
+          "View item details",
+          "Same UI layout and styling as current website"
         ]
       },
       "acceptanceCriteria": [
-        "All existing public methods in `backend/main.mo` remain available with the same names, parameters, and return types (no breaking Candid changes).",
-        "Behavior is preserved for: `getCallerUserProfile`, `getUserProfile`, `saveCallerUserProfile`, `registerWithMinecraftUsername`, `updateUserMinecraftUsername`, `addShopItem`, `editShopItem`, `deleteShopItem`, `getAllShopItems`, `getShopItemsByCategory`, `addToCart`, `getCart`, `clearCart`, `completePurchaseWithUPI`, `getPurchaseHistory`, `getAllOrders`, `approveOrder`, `updateUPIConfig`, `getUPIConfig`, `updateWebsiteConfig`, `getWebsiteConfig`.",
-        "All trapping/error paths continue to trap with English error messages (e.g., replace `Runtime.trap` with a production-safe alternative)."
+        "Detail view accessible by clicking item card",
+        "Full item information displayed clearly",
+        "Quantity selector allows choosing amount before adding to cart",
+        "Add to cart button disabled when out of stock",
+        "Success feedback shown when item added to cart"
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Ensure backend state remains upgrade-safe after migrating away from `mo:core` data structures by implementing stable state serialization + reconstruction in the single `backend/main.mo` actor, initializing defaults when no prior state exists; add `backend/migration.mo` only if required to preserve existing deployed state.",
-      "target": "backend",
+      "text": "Implement shopping cart UI component showing added items with quantities, individual prices, total price calculation, and remove buttons. Include empty cart state.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-recent"
         ],
         "quotes": [
-          "Ensure state remains upgrade-safe after migrating away from `mo:core` data structures by implementing appropriate upgrade handling (stable state serialization + reconstruction) in the single `backend/main.mo` actor, initializing defaults when no prior state exists. Add `backend/migration.mo` only if required to preserve existing deployed state."
+          "Basic cart (add/remove with quantities, same persistence and user behavior as current)"
         ]
       },
       "acceptanceCriteria": [
-        "On upgrade, previously stored values for `upiConfig`, `websiteConfig`, `nextItemId`, profiles, shop items, carts, and purchases are preserved and restored correctly.",
-        "On fresh install (no prior stable data), the canister initializes with the current default `upiConfig` and `websiteConfig` values and empty collections.",
-        "No new backend actors are introduced; all logic remains in `backend/main.mo` per single-actor constraint.",
-        "`backend/migration.mo` is created only if necessary to preserve already-deployed state; otherwise it is not added."
+        "Cart displays all added items with current quantities",
+        "Quantity can be adjusted inline",
+        "Remove button removes items from cart",
+        "Total price updates automatically",
+        "Empty cart shows helpful message",
+        "Cart count badge updates in header"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Build admin panel for managing shop items with create, edit, and delete forms. Include image URL input, price validation, stock management, and category selection. Protect with admin authorization.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Admin CRUD for shop items",
+          "Admin functionality — Same CRUD operations you have now for managing shop items"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin-only UI accessible from navigation when authorized",
+        "Create form validates all required fields",
+        "Edit form pre-populates with existing item data",
+        "Delete action includes confirmation prompt",
+        "Forms provide clear success/error feedback",
+        "Non-admin users cannot access admin routes"
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
-    "Do not introduce any `mo:core/*` imports anywhere that is required to compile the backend for production.",
-    "Preserve the existing public Candid interface (no breaking API changes).",
-    "Use English for any user-facing/trap/error text."
+    "Use mo:base only - no mo:core imports in backend code",
+    "Preserve existing Header.tsx, Footer.tsx, and Layout.tsx structure",
+    "Do not modify useInternetIdentity.ts or useActor.ts hooks",
+    "Maintain single-actor backend architecture in main.mo",
+    "Keep existing authentication and authorization patterns"
   ],
   "nonGoals": [
-    "Adding new product features beyond replacing `mo:core` usage and making the backend compile in production.",
-    "Changing frontend UI/UX or routes."
+    "UPI payment integration (Phase 3)",
+    "Order history and tracking (Phase 4)",
+    "Order approval system (Phase 4)",
+    "User profile management (Phase 2)",
+    "User registration/login beyond existing Internet Identity (Phase 2)"
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

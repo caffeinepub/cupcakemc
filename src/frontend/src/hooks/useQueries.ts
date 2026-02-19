@@ -77,6 +77,17 @@ export function useGetAllShopItems() {
   });
 }
 
+export function useGetShopItemsByCategory() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (category: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getShopItemsByCategory(category);
+    },
+  });
+}
+
 export function useAddShopItem() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -112,7 +123,7 @@ export function useDeleteShopItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: bigint) => {
+    mutationFn: async ({ id }: { id: bigint }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.deleteShopItem(id);
     },
@@ -122,93 +133,12 @@ export function useDeleteShopItem() {
   });
 }
 
-export function useGetUPIConfig() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
-
-  return useQuery<UPIConfig>({
-    queryKey: ['upiConfig'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getUPIConfig();
-    },
-    enabled: !!actor && !actorFetching && !!identity && !identity.getPrincipal().isAnonymous(),
-    staleTime: 1000 * 60 * 30,
-    gcTime: 1000 * 60 * 60,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-export function useUpdateUPIConfig() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (config: { upiId: string; merchantName: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateUPIConfig(config.upiId, config.merchantName);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['upiConfig'] });
-    },
-  });
-}
-
-export function useGetWebsiteConfig() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  return useQuery<WebsiteConfig>({
-    queryKey: ['websiteConfig'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getWebsiteConfig();
-    },
-    enabled: !!actor && !actorFetching,
-    staleTime: 1000 * 60 * 30,
-    gcTime: 1000 * 60 * 60,
-  });
-}
-
-export function useUpdateWebsiteConfig() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (config: { 
-      discordInviteLink: string; 
-      votePageUrls: string[]; 
-      serverIp: string; 
-      homeTagline: string;
-      serverOnlineStatus: boolean;
-      serverMemberCount: bigint;
-      logo: Logo;
-      backgroundSetting: BackgroundSetting;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateWebsiteConfig(
-        config.discordInviteLink, 
-        config.votePageUrls, 
-        config.serverIp, 
-        config.homeTagline,
-        config.serverOnlineStatus,
-        config.serverMemberCount,
-        config.logo,
-        config.backgroundSetting
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['websiteConfig'] });
-    },
-  });
-}
-
 export function useGetCart() {
   const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
 
   return useQuery<CartItem[]>({
-    queryKey: ['cart', identity?.getPrincipal().toString()],
+    queryKey: ['cart'],
     queryFn: async () => {
       if (!actor) return [];
       try {
@@ -231,6 +161,36 @@ export function useAddToCart() {
     mutationFn: async ({ itemId, quantity }: { itemId: bigint; quantity: bigint }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.addToCart(itemId, quantity);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+}
+
+export function useUpdateCartQuantity() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ itemId, quantity }: { itemId: bigint; quantity: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addToCart(itemId, quantity);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+}
+
+export function useRemoveFromCart() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ itemId }: { itemId: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addToCart(itemId, 0n);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -265,7 +225,6 @@ export function useCompletePurchaseWithUPI() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['purchaseHistory'] });
-      queryClient.invalidateQueries({ queryKey: ['allOrders'] });
     },
   });
 }
@@ -275,7 +234,7 @@ export function useGetPurchaseHistory() {
   const { identity } = useInternetIdentity();
 
   return useQuery<PurchaseRecord[]>({
-    queryKey: ['purchaseHistory', identity?.getPrincipal().toString()],
+    queryKey: ['purchaseHistory'],
     queryFn: async () => {
       if (!actor) return [];
       try {
@@ -292,19 +251,14 @@ export function useGetPurchaseHistory() {
 
 export function useGetAllOrders() {
   const { actor, isFetching: actorFetching } = useActor();
-  const { identity } = useInternetIdentity();
 
   return useQuery<OrderDetails[]>({
     queryKey: ['allOrders'],
     queryFn: async () => {
       if (!actor) return [];
-      try {
-        return await actor.getAllOrders();
-      } catch (error) {
-        return [];
-      }
+      return actor.getAllOrders();
     },
-    enabled: !!actor && !actorFetching && !!identity && !identity.getPrincipal().isAnonymous(),
+    enabled: !!actor && !actorFetching,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 15,
   });
@@ -321,7 +275,84 @@ export function useApproveOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allOrders'] });
-      queryClient.invalidateQueries({ queryKey: ['purchaseHistory'] });
+    },
+  });
+}
+
+export function useGetUPIConfig() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<UPIConfig>({
+    queryKey: ['upiConfig'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getUPIConfig();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useUpdateUPIConfig() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ upiId, merchantName }: { upiId: string; merchantName: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateUPIConfig(upiId, merchantName);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['upiConfig'] });
+    },
+  });
+}
+
+export function useGetWebsiteConfig() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<WebsiteConfig>({
+    queryKey: ['websiteConfig'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getWebsiteConfig();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+  });
+}
+
+export function useUpdateWebsiteConfig() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (config: {
+      discordInviteLink: string;
+      votePageUrls: string[];
+      serverIp: string;
+      homeTagline: string;
+      serverOnlineStatus: boolean;
+      serverMemberCount: bigint;
+      logo: Logo;
+      backgroundSetting: BackgroundSetting;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateWebsiteConfig(
+        config.discordInviteLink,
+        config.votePageUrls,
+        config.serverIp,
+        config.homeTagline,
+        config.serverOnlineStatus,
+        config.serverMemberCount,
+        config.logo,
+        config.backgroundSetting
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['websiteConfig'] });
     },
   });
 }

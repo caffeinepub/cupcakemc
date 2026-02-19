@@ -1,4 +1,106 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-build-shop-browse-page-displaying-all-active-items-in-a-grid-layout-matching-the-current-website-design-show-item-image-name-price-and-stock-status-include-category-filtering",
+      "featureTitle": "Build shop browse page displaying all active items in a grid layout matching the current website design. Show item image, name, price, and stock status. Include category filtering.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ShopPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-item-detail-view-showing-full-description-larger-image-price-stock-availability-and-quantity-selector-with-add-to-cart-button-match-current-website-styling",
+      "featureTitle": "Create item detail view showing full description, larger image, price, stock availability, and quantity selector with add to cart button. Match current website styling.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ItemDetailPage.tsx",
+        "frontend/src/pages/ShopPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-shopping-cart-ui-component-showing-added-items-with-quantities-individual-prices-total-price-calculation-and-remove-buttons-include-empty-cart-state",
+      "featureTitle": "Implement shopping cart UI component showing added items with quantities, individual prices, total price calculation, and remove buttons. Include empty cart state.",
+      "files": [
+        "frontend/src/components/Header.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ShopPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-admin-panel-for-managing-shop-items-with-create-edit-and-delete-forms-include-image-url-input-price-validation-stock-management-and-category-selection-protect-with-admin-authorization",
+      "featureTitle": "Build admin panel for managing shop items with create, edit, and delete forms. Include image URL input, price validation, stock management, and category selection. Protect with admin authorization.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Header.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ShopManagementPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

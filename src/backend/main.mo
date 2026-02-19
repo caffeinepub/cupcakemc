@@ -1,10 +1,9 @@
 import Map "mo:core/Map";
 import List "mo:core/List";
 import Array "mo:core/Array";
-import Time "mo:core/Time";
 import Text "mo:core/Text";
-import Nat "mo:core/Nat";
 import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 
@@ -331,7 +330,7 @@ actor {
     let purchase : PurchaseRecord = {
       items = cartArray;
       totalAmount;
-      timestamp = Time.now();
+      timestamp = 0;
       status = #unapproved;
       minecraftUsername;
       discordUsername;
